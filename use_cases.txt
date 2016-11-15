@@ -1,0 +1,12 @@
+show help
+increment score
+dercrement score
+show score
+add feature
+show features
+upvote feature
+downvote feature
+
+-----------------
+abuse
+alias management
