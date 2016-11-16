@@ -2,36 +2,13 @@ import telepot
 import sys
 import time
 import User
+import Users
 from pprint import pprint
 
-users = [User.User(0123, "Eduardo"), User.User(0123, "Edik")]
-a = 1
+#users = [User.User(0123, "Eduardo"), User.User(0123, "Edik")]
+users = Users.Users()
 
 
-def get_user_id(user_name):
-    for user in users:
-        names = user.aliases
-        names.append(user.name)
-        for name in names:
-            if user_name == name:
-                return user
-    return False
-
-
-def add_user(msg):
-    id_ = msg['from']['id']
-    name_ = msg['from']['first_name']
-    is_new_user = "true"
-    for user in users:
-        if id_ == user.id_nr:
-            is_new_user = False
-            break
-    if is_new_user:
-        users.append(User.User(id_, name_))
-        output = "added user: " + name_;
-    else:
-        output = "I already made your acquaintance " + name_ + "."
-    bot.sendMessage(msg['chat']['id'], output)
 
 
 def print_help(msg): #TODO: list available cmds
@@ -47,15 +24,16 @@ def unknown_cmd(msg):
 def manipulate_score(msg):
     text = msg['text']
     input_name = text.split(' ', 2)[1]
-    user = get_user_id(input_name)
     input_amount = int(text.split(' ', 1)[0])
     amount = max(min(input_amount, 2), -1)  # cut score to be within [-1,2]
-    if user.id_nr == msg['from']['id'] and amount != 0:
+
+    user = users.get_user(input_name)
+    if user.id_nr == msg['from']['id'] and amount != 0:     # manipulation of own score is not allowed...
         output = u'Nice try, noob!'
-    elif user:
+    elif user:                                              # ... and the user needs to exist...
         user.manipulate_score(amount)
         output = input_name + u' received ' + str(amount) + u' pts and therefore has a score of ' + str(user.score)
-    else:
+    else:                                                   # ...but in case it does not:
         output = u'I\'ve never heard of this "' + input_name
     bot.sendMessage(msg['chat']['id'], output)
 
@@ -64,7 +42,7 @@ def parse(msg):
     text = msg['text']
     options = {
         'help': print_help,
-        'add_me': add_user,
+        'add_me': bot.sendMessage(msg['chat']['id'], users.add_user(msg)),
     }
     if text[0] == '/':
         options.get(text[1:],unknown_cmd)(msg)
@@ -74,9 +52,8 @@ def parse(msg):
 
     pprint(msg)
 
-
-#   for u in users:
-#       u.print_user()
+    for u in users.list:
+        u.print_user()
 #  = 'Nein, du bist hier der ' + msg['text'] + ', lieber ' + msg['chat']['first_name']
 
 
