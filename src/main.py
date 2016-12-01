@@ -3,22 +3,26 @@ import sys
 import time
 import User
 import Users
+import os
 from pprint import pprint
 
 #users = [User.User(0123, "Eduardo"), User.User(0123, "Edik")]
 users = Users.Users()
+TOKEN = sys.argv[1]  # get token from command-line
+bot = telepot.Bot(TOKEN)
 
 
 
-
-def print_help(msg): #TODO: list available cmds
-    help_out = u'help placeholder'
-    bot.sendMessage(msg['chat']['id'], help_out)
+def print_help(msg):    # TODO: list all available cmds
+    help_out = 'The available commands are:'  # pprint(options)
+    for string in options.keys():
+        help_out += u'\n    \U0001F539/' + string
+    return help_out
 
 
 def unknown_cmd(msg):
     help_out = u'Unknown command: "' + msg['text'] + u'"'
-    bot.sendMessage(msg['chat']['id'], help_out)
+    return help_out
 
 
 def manipulate_score(msg):
@@ -37,15 +41,17 @@ def manipulate_score(msg):
         output = u'I\'ve never heard of this "' + input_name
     bot.sendMessage(msg['chat']['id'], output)
 
-
-def parse(msg):
-    text = msg['text']
-    options = {
-        'help': print_help,
-        'add_me': bot.sendMessage(msg['chat']['id'], users.add_user(msg)),
+options = {
+    'help': print_help,
+    'add_me': users.add_user,
+    'add_alias': users.add_alias,
     }
+
+
+def parse_cmd(msg):
+    text = msg['text']
     if text[0] == '/':
-        options.get(text[1:],unknown_cmd)(msg)
+        bot.sendMessage(msg['chat']['id'], options.get(text[1:],unknown_cmd)(msg))
 
     if (text[0] == '+' or text[0] == '-') and text[1].isdigit():
         manipulate_score(msg)
@@ -58,7 +64,8 @@ def parse(msg):
 
 
 def maintenance(): #implement saving and stuff
-    pass
+    users.save(os.path.join(cfg_path, 'saves.txt'))
+    print os.path.join(cfg_path, 'saves.txt')
 
 
 def load_data():  # implement loading users etc
@@ -70,19 +77,26 @@ def handle(msg):
     print(content_type, chat_type, chat_id)
 
     if content_type == 'text':
-        parse(msg)
+        parse_cmd(msg)
 
 
-TOKEN = sys.argv[1]  # get token from command-line
 
+
+#def main():
+gcw = os.getcwd()   # os.path.dirname(__file__)
+cfg_path = os.path.join(gcw, 'cfg')
 load_data()
-
-bot = telepot.Bot(TOKEN)
 bot.message_loop(handle)
 print ('Listening ...')
-
 # Keep the program running.
 while 1:
     time.sleep(10)
+    maintenance()
+
+
+#if __name__ == '__main__':
+#    main()
+
+
 
 

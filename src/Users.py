@@ -1,4 +1,5 @@
 import User
+import json
 
 class Users:
 
@@ -25,6 +26,15 @@ class Users:
 
         return output
 
+    def add_alias(self,msg):    # TODO: implement
+        return "add alias not implemented"
+
+    def save(self, path):    # TODO implement
+        for user in self.list:
+            f = open(path, 'w')
+            #f.write(user.serialize())
+            json.dump(user.serialize(), f)
+            print path
 
     def get_user(self, user_name):
         '''find the user of the given name in the users list and return it,
