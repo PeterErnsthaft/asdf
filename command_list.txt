@@ -1,0 +1,2 @@
+add_user - introduce a new user to the bot
+add_alias - add alias to specified user
