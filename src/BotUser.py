@@ -1,11 +1,10 @@
-class User:
+class BotUser:
 
-    def __init__(self, id_nr, name):
-
+    def __init__(self, id_nr, name, score=0):
         self.id_nr = id_nr
         self.name = name
         self.aliases = []
-        self.score = 0
+        self.score = score
 
     def print_user(self): #TODO print whole user data
         print ( self.name )
@@ -19,3 +18,7 @@ class User:
         # not 100% trustworthy: https://www.reddit.com/r/Python/comments/2kq4a0/pypi_packages_safe/
         #                            ->     https://pypi.python.org/pypi/jsonpickle/0.4.0
         return self.__dict__
+
+    @staticmethod
+    def deserialize(usr_dict):
+        return BotUser(usr_dict['id_nr'], usr_dict['name'], usr_dict['score'])

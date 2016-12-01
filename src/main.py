@@ -1,13 +1,13 @@
 import telepot
 import sys
 import time
-import User
-import Users
+import BotUser
+import BotUsers
 import os
 from pprint import pprint
 
 #users = [User.User(0123, "Eduardo"), User.User(0123, "Edik")]
-users = Users.Users()
+users = BotUsers.BotUsers()
 TOKEN = sys.argv[1]  # get token from command-line
 bot = telepot.Bot(TOKEN)
 
@@ -60,16 +60,15 @@ def parse_cmd(msg):
 
     for u in users.list:
         u.print_user()
-#  = 'Nein, du bist hier der ' + msg['text'] + ', lieber ' + msg['chat']['first_name']
 
 
-def maintenance(): #implement saving and stuff
-    users.save(os.path.join(cfg_path, 'saves.txt'))
-    print os.path.join(cfg_path, 'saves.txt')
+def maintenance():
+    users.save(os.path.join(save_path, 'save'))
 
 
-def load_data():  # implement loading users etc
-    pass
+def load_data(path):  # implement loading users etc
+    users.load(path)
+    print users
 
 
 def handle(msg):
@@ -85,7 +84,8 @@ def handle(msg):
 #def main():
 gcw = os.getcwd()   # os.path.dirname(__file__)
 cfg_path = os.path.join(gcw, 'cfg')
-load_data()
+save_path = os.path.join(gcw, 'saves')
+load_data(save_path)
 bot.message_loop(handle)
 print ('Listening ...')
 # Keep the program running.
