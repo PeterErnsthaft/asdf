@@ -1,5 +1,7 @@
 import BotUser
 import json
+from os import listdir
+from os.path import isfile, join
 
 
 class BotUsers:
@@ -32,17 +34,17 @@ class BotUsers:
 
     def save(self, path):
         for user in self.list:
-            u_path = path + "_" + str(user.id_nr) + ".json" # make own file for every user
+            u_path = path + "_" + str(user.id_nr) + ".json"  # make own file for every user
             with open(u_path, 'w') as f:
-                #f.write(user.serialize())
                 json.dump(user.serialize(), f)
-                print u_path
 
     def load(self, path):
-        u_path = path + "\\save_198048821.json"  # TODO: make it happen for every user / save file found
-        with open(u_path, 'r') as f:
-            data = json.load(f)
-            self.list.append(BotUser.BotUser.deserialize(data))
+        for file_name in listdir(path):
+            file_path = join(path, file_name)
+            if isfile(file_path):
+                with open(file_path, 'r') as f:
+                    data = json.load(f)
+                    self.list.append(BotUser.BotUser.deserialize(data))
 
     def get_user(self, user_name):
         '''find the user of the given name in the users list and return it,

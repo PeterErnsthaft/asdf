@@ -8,13 +8,18 @@ from pprint import pprint
 
 #users = [User.User(0123, "Eduardo"), User.User(0123, "Edik")]
 users = BotUsers.BotUsers()
-TOKEN = sys.argv[1]  # get token from command-line
+
+# get token from file and create bot
+token_path = sys.argv[1]
+with open(token_path, 'r') as f:
+    TOKEN = f.read()
+    f.close()
 bot = telepot.Bot(TOKEN)
 
 
 
-def print_help(msg):    # TODO: list all available cmds
-    help_out = 'The available commands are:'  # pprint(options)
+def print_help(msg):    # list all available cmds
+    help_out = 'The available commands are:'
     for string in options.keys():
         help_out += u'\n    \U0001F539/' + string
     return help_out
@@ -32,13 +37,14 @@ def manipulate_score(msg):
     amount = max(min(input_amount, 2), -1)  # cut score to be within [-1,2]
 
     user = users.get_user(input_name)
-    if user.id_nr == msg['from']['id'] and amount != 0:     # manipulation of own score is not allowed...
-        output = u'Nice try, noob!'
-    elif user:                                              # ... and the user needs to exist...
-        user.manipulate_score(amount)
-        output = input_name + u' received ' + str(amount) + u' pts and therefore has a score of ' + str(user.score)
-    else:                                                   # ...but in case it does not:
-        output = u'I\'ve never heard of this "' + input_name
+    if user:
+        if user.id_nr == msg['from']['id'] and amount != 0:     # manipulation of own score is not allowed
+            output = u'Nice try, noob!'
+        else:                                                   # normal case
+            user.manipulate_score(amount)
+            output = input_name + u' received ' + str(amount) + u' pts and therefore has a score of ' + str(user.score)
+    else:                                                       # user does not exist
+        output = u'I\'ve never heard of this "' + input_name + u'"'
     bot.sendMessage(msg['chat']['id'], output)
 
 options = {
@@ -50,9 +56,12 @@ options = {
 
 def parse_cmd(msg):
     text = msg['text']
+
+    # resolve command via options map
     if text[0] == '/':
         bot.sendMessage(msg['chat']['id'], options.get(text[1:],unknown_cmd)(msg))
 
+    # manipulate score
     if (text[0] == '+' or text[0] == '-') and text[1].isdigit():
         manipulate_score(msg)
 
@@ -68,7 +77,7 @@ def maintenance():
 
 def load_data(path):  # implement loading users etc
     users.load(path)
-    print users
+    print(users)
 
 
 def handle(msg):
@@ -87,7 +96,7 @@ cfg_path = os.path.join(gcw, 'cfg')
 save_path = os.path.join(gcw, 'saves')
 load_data(save_path)
 bot.message_loop(handle)
-print ('Listening ...')
+print('Listening ...')
 # Keep the program running.
 while 1:
     time.sleep(10)
