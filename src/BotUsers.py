@@ -9,9 +9,9 @@ class BotUsers:
     def __init__(self):
         self.list = []
 
-    def add_user(self,msg):
-        id_ = msg['from']['id']
-        name_ = msg['from']['first_name']
+    def add_user(self, update, context):
+        id_ = update.effective_user.id
+        name_ = update.effective_user.first_name
 
         # find out whether the user already exists
         is_new_user = "true"
@@ -27,10 +27,10 @@ class BotUsers:
         else:
             output = "I already made your acquaintance " + name_ + "."
 
-        return output
+        context.bot.send_message(chat_id=update.effective_chat.id, text=output)
 
-    def add_alias(self,msg):    # TODO: implement
-        return "add alias not implemented"
+    def add_alias(self, update, context):    # TODO: implement
+        context.bot.send_message(chat_id=update.effective_chat.id, text="add alias not implemented")
 
     def save(self, path):
         for user in self.list:
