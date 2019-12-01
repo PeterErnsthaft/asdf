@@ -2,6 +2,7 @@ import BotUser
 import json
 from os import listdir
 from os.path import isfile, join
+from sys import maxsize
 
 # constants | TODO: maybe put this in some kind of cfg file
 MAX_ALIAS_LENGTH = 256
@@ -61,6 +62,27 @@ class BotUsers:
                 output = f'could not find user named {user_name}!'
         else:
             output = f'aliases may only be {MAX_ALIAS_LENGTH} characters long, yours was {alias_len}'
+        context.bot.send_message(chat_id=update.effective_chat.id, text=output)
+
+    def scoreboard(self, update, context):
+        sorted_users = sorted(self.list, key=lambda user: user.score, reverse=True)  # sort list of user objs by score
+        output = "Scoreboard:\n"
+        idx = 0
+
+        # "same score case": sometimes multiple users will have the same score and should therefore be placed evenly
+        next_index_step = 1  # remembers additional index points in "same score case"
+        last_score = maxsize  # last users score needs to be kept to detect "same score case"
+
+        for user in sorted_users:
+            # index management:
+            if user.score < last_score:  # no "same score case"
+                idx += next_index_step
+                next_index_step = 1
+            else:  # "same score case"
+                next_index_step += 1  # remember that one place needs to be skipped
+            last_score = user.score
+
+            output += f'{idx}. {user.name}: {user.score}\n'
         context.bot.send_message(chat_id=update.effective_chat.id, text=output)
 
     def save(self, path):

@@ -50,6 +50,7 @@ options = {
     'help': print_help,
     'add_me': users.add_user,
     'add_alias': users.add_alias,
+    'scoreboard': users.scoreboard,
 }
 
 
