@@ -84,6 +84,6 @@ class BotUsers:
             aliases = user.aliases
             names = [user.name.lower(), ] + aliases
             for name in names:
-                if user_name == name:
+                if user_name.lower() == name.lower():
                     return user
         return False

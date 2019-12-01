@@ -109,6 +109,7 @@ updater.start_polling()
 while 1:
     time.sleep(10)
     maintenance()
+    # TODO: report/anti-abuse, random Beleidigungen
 
 # if __name__ == '__main__':
 #    main()
