@@ -3,6 +3,8 @@ import json
 from os import listdir
 from os.path import isfile, join
 
+# constants | TODO: maybe put this in some kind of cfg file
+MAX_ALIAS_LENGTH = 256
 
 class BotUsers:
 
@@ -29,8 +31,37 @@ class BotUsers:
 
         context.bot.send_message(chat_id=update.effective_chat.id, text=output)
 
-    def add_alias(self, update, context):    # TODO: implement
-        context.bot.send_message(chat_id=update.effective_chat.id, text="add alias not implemented")
+    def add_alias(self, update, context):
+        # check for comma delimited arguments, this has precedence
+        comma_args = update.message.text.split(',')
+        if len(comma_args) >= 3:  # if input is valid and comma separated
+            user_name = comma_args[1].lower()
+            new_alias = comma_args[2].lower()
+        else:
+            args = update.message.text.split(' ',2)
+            if len(args) >= 3:  # if space separation is valid
+                user_name = args[1].lower()
+                new_alias = args[2].lower()
+            else:  # invalid input -> send notification and abort
+                context.bot.send_message(chat_id=update.effective_chat.id,
+                                         text='invalid input format, it needs to be like this:\n'
+                                              ' \\add_alias,<current_name>,<new_alias>\n'
+                                              '  example: \\add_alias,Peter,MC Brigitte')
+                return
+        # arguments have correct form, now the important stuff:
+        alias_len = len(new_alias)
+        if alias_len < MAX_ALIAS_LENGTH:  # aliases should not exceed max length
+            user = self.get_user(user_name)
+            if user:
+                if user.add_alias(new_alias):
+                    output = f'{user.name} is now also called {new_alias}'
+                else:
+                    output = f'Could not set new alias \'{new_alias}\''
+            else:
+                output = f'could not find user named {user_name}!'
+        else:
+            output = f'aliases may only be {MAX_ALIAS_LENGTH} characters long, yours was {alias_len}'
+        context.bot.send_message(chat_id=update.effective_chat.id, text=output)
 
     def save(self, path):
         for user in self.list:
