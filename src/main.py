@@ -91,6 +91,7 @@ token_path = sys.argv[1]
 with open(token_path, 'r') as f:
     TOKEN = f.read()
     f.close()
+TOKEN = TOKEN.split('\n', 1)[0] # need this line because for some reason a line ending appears on linux
 
 # telegram lib magic
 updater = Updater(token=TOKEN, use_context=True)
@@ -101,12 +102,13 @@ dispatcher.add_handler(MessageHandler(Filters.text, handle_text))
 for key, function in options.items():
     dispatcher.add_handler(CommandHandler(key, function))
 
-
-
-
-
 print('starting event loop')
 updater.start_polling()
+
+# trigger maintenance (e.g. saving data persistently) every 10s
+while 1:
+    time.sleep(10)
+    maintenance()
 
 # if __name__ == '__main__':
 #    main()

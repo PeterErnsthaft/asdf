@@ -50,8 +50,8 @@ class BotUsers:
         '''find the user of the given name in the users list and return it,
         if it does not exist delete return false'''
         for user in self.list:
-            names = user.aliases
-            names.append(user.name)
+            aliases = user.aliases
+            names = [user.name.lower(), ] + aliases
             for name in names:
                 if user_name == name:
                     return user
