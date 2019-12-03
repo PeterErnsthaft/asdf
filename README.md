@@ -3,12 +3,14 @@
 ## add user
 
 root@Apollo:~#
+
     adduser peter
     usermod -a -G sudo peter
 
 ## install packages, venv and bot, then run
 
 peter@Apollo:~/
+
     sudo apt install bash-completion virtualenv git
     
     # python3.6

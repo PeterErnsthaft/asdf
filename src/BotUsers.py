@@ -54,7 +54,8 @@ class BotUsers:
         if alias_len < MAX_ALIAS_LENGTH:  # aliases should not exceed max length
             user = self.get_user(user_name)
             if user:
-                if user.add_alias(new_alias):
+                if not self.get_user(new_alias):
+                    user.add_alias(new_alias)
                     output = f'{user.name} is now also called {new_alias}'
                 else:
                     output = f'Could not set new alias \'{new_alias}\''

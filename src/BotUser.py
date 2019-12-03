@@ -14,10 +14,7 @@ class BotUser:
 
     def add_alias(self, alias):
         alias_lower = alias.lower()  # converted to lower case
-        if alias_lower not in self.aliases:  # add if not there yet
-            self.aliases.append(alias_lower)
-            return True
-        return False
+        self.aliases.append(alias_lower)
 
     def serialize(self):
         # TODO implement some serious serialization when User starts having object attributes
