@@ -86,6 +86,24 @@ class BotUsers:
             output += f'{idx}. {user.name}: {user.score}\n'
         context.bot.send_message(chat_id=update.effective_chat.id, text=output)
 
+    def show_aliases(self, update, context):
+        args = update.message.text.split(' ', 2)
+        if len(args) < 2:  # if no argument is given print all user's aliases
+            for user in self.list:
+                self.__show_aliases(user.name, update, context)
+        else:  # only print aliases of user in the argument
+            user_name = args[1].lower()
+            self.__show_aliases(user_name, update, context)
+
+    def __show_aliases(self, user_name, update, context):
+        user = self.get_user(user_name)
+        if user:
+            output = f'Aliases of user {user_name}: {user.aliases}'
+        else:
+            output = 'user not found'
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text=output)
+
     def save(self, path):
         for user in self.list:
             u_path = path + "_" + str(user.id_nr) + ".json"  # make own file for every user
