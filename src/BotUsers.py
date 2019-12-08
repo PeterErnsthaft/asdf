@@ -1,5 +1,6 @@
 import BotUser
 import json
+import jsonpickle
 from os import listdir
 from os.path import isfile, join
 from sys import maxsize
@@ -108,15 +109,15 @@ class BotUsers:
         for user in self.list:
             u_path = path + "_" + str(user.id_nr) + ".json"  # make own file for every user
             with open(u_path, 'w') as f:
-                json.dump(user.serialize(), f)
+                f.write(jsonpickle.encode(user))
 
     def load(self, path):
         for file_name in listdir(path):
             file_path = join(path, file_name)
             if isfile(file_path):
                 with open(file_path, 'r') as f:
-                    data = json.load(f)
-                    self.list.append(BotUser.BotUser.deserialize(data))
+                    json_string = f.read()
+                    self.list.append(jsonpickle.decode(json_string))
 
     def get_user(self, user_name):
         '''find the user of the given name in the users list and return it,
