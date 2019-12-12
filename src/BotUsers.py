@@ -8,6 +8,7 @@ from sys import maxsize
 # constants | TODO: maybe put this in some kind of cfg file
 MAX_ALIAS_LENGTH = 256
 
+
 class BotUsers:
 
     def __init__(self):
@@ -40,15 +41,15 @@ class BotUsers:
             user_name = comma_args[1].lower()
             new_alias = comma_args[2].lower()
         else:
-            args = update.message.text.split(' ',2)
+            args = update.message.text.split(' ', 2)
             if len(args) >= 3:  # if space separation is valid
                 user_name = args[1].lower()
                 new_alias = args[2].lower()
             else:  # invalid input -> send notification and abort
                 context.bot.send_message(chat_id=update.effective_chat.id,
                                          text='invalid input format, it needs to be like this:\n'
-                                              ' \\add_alias,<current_name>,<new_alias>\n'
-                                              '  example: \\add_alias,Peter,MC Brigitte')
+                                              ' /add_alias,<current_name>,<new_alias>\n'
+                                              '  example: /add_alias,Peter,MC Brigitte')
                 return
         # arguments have correct form, now the important stuff:
         alias_len = len(new_alias)
@@ -101,7 +102,10 @@ class BotUsers:
         if user:
             output = f'Aliases of user {user_name}: {user.aliases}'
         else:
-            output = 'user not found'
+            output = f'User \'{user_name}\' not found! Use this command like this:\n' \
+                     f'\t/show_aliases <user_name>\n' \
+                     f'or, if you want to print the aliases of all users, like this:' \
+                     f'\t/show_aliases'
         context.bot.send_message(chat_id=update.effective_chat.id,
                                  text=output)
 
@@ -129,3 +133,11 @@ class BotUsers:
                 if user_name.lower() == name.lower():
                     return user
         return False
+
+    # @staticmethod
+    # def get_args(update, delimiter=' ', size=None):
+    #     if size is not None:
+    #         args = update.message.text.split(delimiter, size)
+    #     else:
+    #         args = update.message.text.split(delimiter)
+    #     return args

@@ -3,6 +3,7 @@ import sys
 import time
 import BotUser
 import BotUsers
+from Report import Report, REPORT_TYPES
 import os
 from pprint import pprint
 import logging
@@ -28,7 +29,7 @@ def unknown_cmd(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
 
-def manipulate_score(update,context):
+def manipulate_score(update, context):
     text = update.message.text
     input_name = text.split(' ', 2)[1]
     input_amount = int(text.split(' ', 1)[0])
@@ -46,14 +47,34 @@ def manipulate_score(update,context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=output)
 
 
+def report(update, context):
+    # parse args
+    args = update.message.text.split(' ', 2)
+    if len(args) >= 3:
+        user_name = args[1].lower()
+        reason = args[2].lower()
+        user = users.get_user(user_name)
+        if user and reason in REPORT_TYPES:
+            # add report
+            user.add_report(Report(update.effective_user.first_name, reason), update, context)
+        else:
+            context.bot.send_message(chat_id=update.effective_chat.id,
+                                     text=f'invalid user or reason! valid reasons are: {REPORT_TYPES.keys()}')
+    else:  # invalid input -> send notification and abort
+        context.bot.send_message(chat_id=update.effective_chat.id,
+                                 text='invalid input, it needs to be like this:\n'
+                                      ' /report <user_name> <reason>\n'
+                                      '  example: /report Peter other_abuse')
+
+
 options = {
     'help': print_help,
     'add_me': users.add_user,
     'add_alias': users.add_alias,
     'scoreboard': users.scoreboard,
     'show_aliases': users.show_aliases,
+    'report': report,
 }
-
 
 def parse_msg(update, context):  # TODO: advanced message parsing (maybe parse whole message)
     text = update.message.text
@@ -111,7 +132,7 @@ updater.start_polling()
 while 1:
     time.sleep(10)
     maintenance()
-    # TODO: report/anti-abuse, random Beleidigungen
+    # TODO: print reports, random Beleidigungen, proper help texts
 
 # if __name__ == '__main__':
 #    main()

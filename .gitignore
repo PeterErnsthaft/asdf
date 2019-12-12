@@ -1,5 +1,9 @@
 token
+saves
+.idea
 src/.idea/*
 src/*.pyc
 src/saves
 *.mdj
+__pycache__
+src/__pycache__
