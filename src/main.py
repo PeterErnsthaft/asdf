@@ -31,8 +31,8 @@ def unknown_cmd(update, context):
 
 def manipulate_score(update, context):
     text = update.message.text
-    input_name = text.split(' ', 2)[1]
-    input_amount = int(text.split(' ', 1)[0])
+    input_name = text.split(None, 2)[1]
+    input_amount = int(text.split(None, 1)[0])
     amount = max(min(input_amount, 2), -1)  # cut score to be within [-1,2]
 
     user = users.get_user(input_name)
@@ -49,7 +49,7 @@ def manipulate_score(update, context):
 
 def report(update, context):
     # parse args
-    args = update.message.text.split(' ', 2)
+    args = update.message.text.split(None, 2)
     if len(args) >= 3:
         user_name = args[1].lower()
         reason = args[2].lower()
@@ -67,12 +67,32 @@ def report(update, context):
                                       '  example: /report Peter other_abuse')
 
 
+def show_reports(update, context):
+    # parse args
+    if hasattr(update.message, 'text'):  # TODO: #1 this check is needed for every cmd to avoid crashes on msg edit
+        args = update.message.text.split(None, 2)
+        answer = ''
+        if len(args) >= 2:
+            user_name = args[1].lower()
+            user = users.get_user(user_name)
+            if user:
+                answer = user.get_reports_string()
+            else:
+                answer = f'no user named {user_name}'
+        else:
+            answer = 'invalid input, it needs to be like this:\n'\
+                     '\t/show_reports <user_name>\n'\
+                     '\texample: /show_reports Peter'
+        context.bot.send_message(chat_id=update.effective_chat.id, text=answer)
+
+
 options = {
     'help': print_help,
     'add_me': users.add_user,
     'add_alias': users.add_alias,
     'scoreboard': users.scoreboard,
     'show_aliases': users.show_aliases,
+    'show_reports': show_reports,
     'report': report,
 }
 
@@ -132,7 +152,10 @@ updater.start_polling()
 while 1:
     time.sleep(10)
     maintenance()
-    # TODO: print reports, random Beleidigungen, proper help texts
+    # TODO: commands as subclasses of parent that implements e.g. validity checks (see #1) and arg parsing,
+    #  implement __repr__ for all classes
+    #  random Beleidigungen,
+    #  proper help texts
 
 # if __name__ == '__main__':
 #    main()

@@ -19,3 +19,5 @@ class Report:
     def still_valid(self):  # if timed out, returns false
         return datetime.now(tz=TZ) - self.time < VALID_TIME
 
+    def __repr__(self):
+        return f'{self.reason} by {self.issuing_user}, time: {self.time.strftime("%Y-%m-%d %H:%M:%S")}'

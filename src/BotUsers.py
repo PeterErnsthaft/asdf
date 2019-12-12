@@ -41,7 +41,7 @@ class BotUsers:
             user_name = comma_args[1].lower()
             new_alias = comma_args[2].lower()
         else:
-            args = update.message.text.split(' ', 2)
+            args = update.message.text.split(None, 2)
             if len(args) >= 3:  # if space separation is valid
                 user_name = args[1].lower()
                 new_alias = args[2].lower()
@@ -89,7 +89,7 @@ class BotUsers:
         context.bot.send_message(chat_id=update.effective_chat.id, text=output)
 
     def show_aliases(self, update, context):
-        args = update.message.text.split(' ', 2)
+        args = update.message.text.split(None, 2)
         if len(args) < 2:  # if no argument is given print all user's aliases
             for user in self.list:
                 self.__show_aliases(user.name, update, context)

@@ -9,7 +9,7 @@ class BotUser:
         self.score = score
         self.reports = reports
 
-    def print_user(self): #TODO print whole user data
+    def print_user(self):  # TODO: implement __repr__
         print(self.name)
 
     def manipulate_score(self, amount):
@@ -20,16 +20,25 @@ class BotUser:
         self.aliases.append(alias_lower)
 
     def add_report(self, report, update, context):
+        # no need to check whether user has already reported for this reason, penalize only recognized unique user's
+        # reports for one type
         self.reports.append(report)
         self.reports[:] = [r for r in self.reports if r.still_valid()]  # delete reports that are timed out
         self.penalize(update, context)
         # print(f'report added for {self.name}! reason: {report.reason} by {report.issuing_user}')
-        # for r in self.reports:
-        #     print(f'{r.time}: {r.issuing_user} for {r.reason}')
 
-    # TODO: check if critical number of reports is reached and penalize
+    def get_reports_string(self):
+        if self.reports.count == 0:
+            return f'No reports for {self.name}!'
+        else:
+            self.reports.sort(key=lambda report: report.time)
+            self.reports.sort(key=lambda report: report.reason)
+            res = f'Reports:\n'
+            for r in self.reports:
+                res += f'\t⚠️ {r}\n'
+            return res
 
-    def penalize(self, update, context) :
+    def penalize(self, update, context):
         # count number of users that reported for the same reason
         reports_per_reason = {}
         for report in self.reports:
