@@ -1,31 +1,29 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+
 import sys
 import time
-import BotUser
-import BotUsers
-from Report import Report, REPORT_TYPES
-import os
-from pprint import pprint
 import logging
+import os
+from datetime import datetime
+
+from BotUsers import BotUsers
+from CmdAddMe import CmdAddMe
+from CmdAddAlias import CmdAddAlias
+from CmdShowAliases import CmdShowAliases
+from CmdShowReports import CmdShowReports
+from CmdReport import CmdReport
+from CmdScoreboard import CmdScoreboard
+from Command import Command
 
 # set this logging or the bot will fail silently
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                     level=logging.INFO)
-
-# users = [User.User(0123, "Eduardo"), User.User(0123, "Edik")]
-users = BotUsers.BotUsers()
+                    level=logging.INFO)
 
 
 def print_help(update, context):  # list all available cmds
     msg = 'The available commands are:'
-    for string in options.keys():
+    for string in commands.keys():
         msg += u'\n    \U0001F539/' + string
-    context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
-
-
-# currently effectively dead (got no wildcard filter for each unknown command)
-def unknown_cmd(update, context):
-    msg = u'Unknown command: "' + update.message.text + u'"'
     context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
 
@@ -35,8 +33,9 @@ def manipulate_score(update, context):
     input_amount = int(text.split(None, 1)[0])
     amount = max(min(input_amount, 2), -1)  # cut score to be within [-1,2]
 
-    user = users.get_user(input_name)
-    if user:
+    cmd = Command(users)  # TODO: this is really ugly! -> maybe move get_user back to BotUsers class
+    user = cmd.get_user(input_name)
+    if user is not None:
         if user.id_nr == update.effective_user.id and amount != 0:  # manipulation of own score is not allowed
             output = u'Nice try, noob!'
         else:  # normal case
@@ -47,102 +46,64 @@ def manipulate_score(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text=output)
 
 
-def report(update, context):
-    # parse args
-    args = update.message.text.split(None, 2)
-    if len(args) >= 3:
-        user_name = args[1].lower()
-        reason = args[2].lower()
-        user = users.get_user(user_name)
-        if user and reason in REPORT_TYPES:
-            # add report
-            user.add_report(Report(update.effective_user.first_name, reason), update, context)
-        else:
-            context.bot.send_message(chat_id=update.effective_chat.id,
-                                     text=f'invalid user or reason! valid reasons are: {REPORT_TYPES.keys()}')
-    else:  # invalid input -> send notification and abort
-        context.bot.send_message(chat_id=update.effective_chat.id,
-                                 text='invalid input, it needs to be like this:\n'
-                                      ' /report <user_name> <reason>\n'
-                                      '  example: /report Peter other_abuse')
+bot_users = BotUsers()
+users = bot_users.users
+cmd_add_me = CmdAddMe(users)
+cmd_add_alias = CmdAddAlias(users)
+cmd_show_aliases = CmdShowAliases(users)
+cmd_show_reports = CmdShowReports(users)
+cmd_report = CmdReport(users)
+cmd_scoreboard = CmdScoreboard(users)
 
-
-def show_reports(update, context):
-    # parse args
-    if hasattr(update.message, 'text'):  # TODO: #1 this check is needed for every cmd to avoid crashes on msg edit
-        args = update.message.text.split(None, 2)
-        answer = ''
-        if len(args) >= 2:
-            user_name = args[1].lower()
-            user = users.get_user(user_name)
-            if user:
-                answer = user.get_reports_string()
-            else:
-                answer = f'no user named {user_name}'
-        else:
-            answer = 'invalid input, it needs to be like this:\n'\
-                     '\t/show_reports <user_name>\n'\
-                     '\texample: /show_reports Peter'
-        context.bot.send_message(chat_id=update.effective_chat.id, text=answer)
-
-
-options = {
+commands = {
     'help': print_help,
-    'add_me': users.add_user,
-    'add_alias': users.add_alias,
-    'scoreboard': users.scoreboard,
-    'show_aliases': users.show_aliases,
-    'show_reports': show_reports,
-    'report': report,
+    'add_me': cmd_add_me.call,
+    'add_alias': cmd_add_alias.call,
+    'scoreboard': cmd_scoreboard.call,
+    'show_aliases': cmd_show_aliases.call,
+    'show_reports': cmd_show_reports.call,
+    'report': cmd_report.call,
 }
 
-def parse_msg(update, context):  # TODO: advanced message parsing (maybe parse whole message)
-    text = update.message.text
 
-    # manipulate score
-    if (text[0] == '+' or text[0] == '-') and text[1].isdigit():
-        manipulate_score(update,context)
-
-    # debugging
-    for u in users.list:
-        u.print_user()
+def parse_msg(update, context):  # TODO: advanced message parsing => probably via regex
+    if hasattr(update.message, 'text'):
+        text = update.message.text
+        # manipulate score
+        if (text[0] == '+' or text[0] == '-') and text[1].isdigit():
+            manipulate_score(update, context)
 
 
 def maintenance():
-    users.save(os.path.join(save_path, 'save'))
-
-
-def load_data(path):  # implement loading users etc
-    users.load(path)
-    print(users)
+    bot_users.save(os.path.join(save_path, 'save'))
 
 
 def handle_text(update, context):
-    print(u'received: ' + update.message.text + "\nfrom: " + str(update.effective_user))
+    print(f'{datetime.now().isoformat()} received: ' + update.message.text + "\tfrom: " + str(update.effective_user))
     parse_msg(update, context)
 
-# def main():
 
-# initialize
+# def main():
+# load data
 gcw = os.getcwd()
 cfg_path = os.path.join(gcw, 'cfg')
 save_path = os.path.join(gcw, 'saves')
-load_data(save_path)
+bot_users.load(save_path)
 
 # get token from file and create bot
 token_path = sys.argv[1]
 with open(token_path, 'r') as f:
     TOKEN = f.read()
     f.close()
-TOKEN = TOKEN.split('\n', 1)[0] # need this line because for some reason a line ending appears on linux
+TOKEN = TOKEN.split('\n', 1)[0]  # need this line because for some reason a line ending appears on linux
 
-# telegram lib magic
+# telegram lib init magic
 updater = Updater(token=TOKEN, use_context=True)
 dispatcher = updater.dispatcher
 
 # add handlers
 dispatcher.add_handler(MessageHandler(Filters.text, handle_text))
-for key, function in options.items():
+for key, function in commands.items():
     dispatcher.add_handler(CommandHandler(key, function))
 
 print('starting event loop')
