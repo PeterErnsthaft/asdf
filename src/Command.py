@@ -20,6 +20,10 @@ class Command:
         self.update = update
         self.context = context
         self.process()
+        if self.has_text():
+            print(f'processed command: {self.update.message.text}; chat id: {self.update.effective_chat.id}')
+        else:
+            print('received message without text')
 
     def process(self):
         raise NotImplementedError()  # this method needs to be overridden by specific commands (child classes)

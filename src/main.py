@@ -79,7 +79,7 @@ def maintenance():
 
 
 def handle_text(update, context):
-    print(f'{datetime.now().isoformat()} received: ' + update.message.text + "\tfrom: " + str(update.effective_user))
+    print(f'{datetime.now().isoformat()} received: {update.message.text} \tfrom: {update.effective_user.id}')
     parse_msg(update, context)
 
 

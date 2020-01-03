@@ -23,11 +23,12 @@ class CmdAddAlias(Command):
         # arguments have correct form, now the important stuff:
         alias_len = len(new_alias)
         if alias_len < MAX_ALIAS_LENGTH:  # aliases should not exceed max length
-            if self.get_user(new_alias) is None:
+            known_user = self.get_user(new_alias)
+            if known_user is None:
                 user.add_alias(new_alias)
                 output = f'{user.name} is now also called {new_alias}'
             else:
-                output = f'{user.name} is already known as \'{new_alias}\''
+                output = f'{known_user.name} is already known as \'{new_alias}\''
         else:
             output = f'aliases may only be {MAX_ALIAS_LENGTH} characters long, yours was {alias_len}'
         self.answer(output)
