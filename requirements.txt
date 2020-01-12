@@ -1,6 +1,7 @@
 certifi==2019.11.28
 cffi==1.13.2
 cryptography==2.8
+emoji==0.5.4
 future==0.18.2
 jsonpickle==1.2
 pkg-resources==0.0.0
