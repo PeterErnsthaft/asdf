@@ -18,8 +18,9 @@ class BotUsers:
 
     def load(self, path):
         for file_name in listdir(path):
-            file_path = join(path, file_name)
-            if isfile(file_path):
-                with open(file_path, 'r') as f:
-                    json_string = f.read()
-                    self.users.append(jsonpickle.decode(json_string))
+            if file_name[0:5] == 'save_':
+                file_path = join(path, file_name)
+                if isfile(file_path):
+                    with open(file_path, 'r') as f:
+                        json_string = f.read()
+                        self.users.append(jsonpickle.decode(json_string))
