@@ -8,9 +8,10 @@ from datetime import datetime
 
 from BotUsers import BotUsers
 from CmdAddMe import CmdAddMe
+from CmdShowReports import CmdShowReports
+from CmdMySettings import CmdMySettings
 from CmdAddAlias import CmdAddAlias
 from CmdShowAliases import CmdShowAliases
-from CmdShowReports import CmdShowReports
 from CmdReport import CmdReport
 from CmdScoreboard import CmdScoreboard
 from Command import Command
@@ -40,7 +41,11 @@ def manipulate_score(update, context):
             output = u'Nice try, noob!'
         else:  # normal case
             user.manipulate_score(amount)
-            output = input_name + u' received ' + str(amount) + u' pts and therefore has a score of ' + str(user.score)
+            # output = input_name + u' received ' + str(amount) + u' pts and therefore has a score of ' + str(user.score)
+            amount_str = str(amount)
+            if amount >= 0:
+                amount_str = '+' + amount_str
+            output = f'💁 {user.emoji_set[amount_str]}'
     else:  # user does not exist
         output = u'I\'ve never heard of this "' + input_name + u'"'
     context.bot.send_message(chat_id=update.effective_chat.id, text=output)
@@ -50,19 +55,21 @@ bot_users = BotUsers()
 users = bot_users.users
 cmd_add_me = CmdAddMe(users)
 cmd_add_alias = CmdAddAlias(users)
+cmd_my_settings = CmdMySettings(users)
+cmd_report = CmdReport(users)
 cmd_show_aliases = CmdShowAliases(users)
 cmd_show_reports = CmdShowReports(users)
-cmd_report = CmdReport(users)
 cmd_scoreboard = CmdScoreboard(users)
 
 commands = {
     'help': print_help,
     'add_me': cmd_add_me.call,
     'add_alias': cmd_add_alias.call,
+    'my_settings': cmd_my_settings.call,
+    'report': cmd_report.call,
     'scoreboard': cmd_scoreboard.call,
     'show_aliases': cmd_show_aliases.call,
     'show_reports': cmd_show_reports.call,
-    'report': cmd_report.call,
 }
 
 

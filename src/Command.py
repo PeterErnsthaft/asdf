@@ -16,7 +16,8 @@ class Command:
         self.update = None
         self.context = None
 
-    def call(self, update, context, ):
+    # every command is supposed to be called via this function
+    def call(self, update, context):
         self.update = update
         self.context = context
         self.process()
@@ -27,6 +28,9 @@ class Command:
 
     def process(self):
         raise NotImplementedError()  # this method needs to be overridden by specific commands (child classes)
+
+    def get_sending_user(self):
+        return self.get_user_by_id(self.update.effective_user.id)
 
     def has_text(self):
         return hasattr(self.update.message, 'text')
@@ -49,13 +53,21 @@ class Command:
 
     def get_user(self, user_name):
         '''find the user of the given name in the users list and return it,
-        if it does not exist delete return false'''
+        if it does not exist: return None'''
         for user in self.users:
             aliases = user.aliases
             names = [user.name.lower(), ] + aliases
             for name in names:
                 if user_name.lower() == name.lower():
                     return user
+        return None
+
+    def get_user_by_id(self, id_nr):
+        '''find the user of the given id in the users list and return it,
+        if it does not exist: return None'''
+        for user in self.users:
+            if user.id_nr == id_nr:
+                return user
         return None
 
     # def check_validity(update, context):
