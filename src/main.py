@@ -86,7 +86,10 @@ def maintenance():
 
 
 def handle_text(update, context):
+    if not hasattr(update.message, 'text'):
+        print(f'{datetime.now().isoformat()} received message without text (maybe edit) \tfrom: {update.effective_user.id}')
     print(f'{datetime.now().isoformat()} received: {update.message.text} \tfrom: {update.effective_user.id}')
+    sys.stdout.flush()
     parse_msg(update, context)
 
 
@@ -114,6 +117,7 @@ for key, function in commands.items():
     dispatcher.add_handler(CommandHandler(key, function))
 
 print('starting event loop')
+sys.stdout.flush()
 updater.start_polling()
 
 # trigger maintenance (e.g. saving data persistently) every 10s
