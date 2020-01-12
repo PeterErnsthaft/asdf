@@ -1,13 +1,20 @@
 from Report import REPORT_TYPES
+from emoji import UNICODE_EMOJI
 
 class BotUser:
 
-    def __init__(self, id_nr, name, score=0, aliases=[], reports=[]):
+    def __init__(self, id_nr, name):
         self.id_nr = id_nr
         self.name = name
-        self.aliases = aliases
-        self.score = score
-        self.reports = reports
+        self.aliases = []
+        self.score = 0
+        self.reports = []
+        self.emoji_set = {
+            '-1': '🤕',
+            '+0': '🤖',
+            '+1': '🥰',
+            '+2': '🤩',
+        }
 
     def print_user(self):  # TODO: implement __repr__
         print(self.name)
@@ -18,6 +25,13 @@ class BotUser:
     def add_alias(self, alias):
         alias_lower = alias.lower()  # converted to lower case
         self.aliases.append(alias_lower)
+
+    def set_score_emoji(self, amount, emoji):
+        if amount in self.emoji_set and emoji in UNICODE_EMOJI:
+            self.emoji_set[amount] = emoji
+            return True
+        else:
+            return False
 
     def add_report(self, report, update, context):
         # no need to check whether user has already reported for this reason, penalize only recognized unique user's
