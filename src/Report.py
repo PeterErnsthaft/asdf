@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 import pytz
+from GlobalConstants import TZ
 
-TZ = pytz.timezone('Europe/Berlin')
-VALID_TIME = timedelta(hours=6)
+VALID_TIME = timedelta(hours=12)
 REPORT_TYPES = {
-    'score_spam': {'critical_number': 4, 'penalty': 10},
-    'other_abuse': {'critical_number': 7, 'penalty': 20},
+    'score_spam': {'critical_number': 4, 'penalty': 20},
+    'other_abuse': {'critical_number': 4, 'penalty': 30},
 }
 
 

@@ -1,5 +1,9 @@
-from Report import REPORT_TYPES
 from emoji import UNICODE_EMOJI
+
+from Report import REPORT_TYPES
+from GlobalConstants import SCORE_ALLOTMENT, MIN_AMOUNT, MAX_AMOUNT
+
+MAX_FROM_ALLOTMENT = 2  # maximum number of points that can be spend from the personal allotment
 
 class BotUser:
 
@@ -9,11 +13,15 @@ class BotUser:
         self.aliases = []
         self.score = 0
         self.reports = []
+        self.allotment = SCORE_ALLOTMENT
         self.emoji_set = {
             '-1': '🤕',
             '+0': '🤖',
             '+1': '🥰',
             '+2': '🤩',
+            '+3': '🤴',
+            '+4': '🦍',
+            '+5': '🔥',
         }
 
     def print_user(self):  # TODO: implement __repr__
@@ -32,6 +40,28 @@ class BotUser:
             return True
         else:
             return False
+
+    def reduce_allotment_and_or_score(self, desired_amount):
+        if self.allotment == 0 and self.score == 0:
+            return None
+        desired_amount = max(desired_amount, MIN_AMOUNT)  # you cannot give below MIN_AMOUNT points
+        desired_amount = min(desired_amount, MAX_AMOUNT)  # you cannot give above MAX_AMOUNT points
+        # giving negative points reduces own points:
+        if desired_amount < 0:
+            amount_from_allotment = 0
+            amount_from_score = -desired_amount
+        else:
+            amount_from_allotment = min(desired_amount, self.allotment,
+                                        MAX_FROM_ALLOTMENT)  # give only as much as you can from allotment
+            amount_from_score = desired_amount - amount_from_allotment  # give rest from score
+        if amount_from_score > self.score:  # check if it is possible
+            return None
+        else:
+            self.allotment -= amount_from_allotment
+            self.score -= amount_from_score
+            sign = int(desired_amount / abs(desired_amount))
+            return (amount_from_allotment + amount_from_score) * sign
+
 
     def add_report(self, report, update, context):
         # no need to check whether user has already reported for this reason, penalize only recognized unique user's
