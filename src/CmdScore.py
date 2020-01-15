@@ -8,10 +8,11 @@ class CmdScore(Command):
 
     def process(self):
         text = self.update.message.text
-        input_name = text.split(None, 2)[1]
         desired_amount = int(text.split(None, 1)[0])
-
-        target_user = self.get_user(input_name)
+        target_user = self.replied_to_whom()
+        if target_user is None:
+            input_name = text.split(None, 2)[1]
+            target_user = self.get_user(input_name)
         sending_user = self.get_sending_user()
         if target_user is not None and sending_user is not None:
             if target_user.id_nr == sending_user.id_nr and desired_amount != 0:  # manipulation of own score is not allowed

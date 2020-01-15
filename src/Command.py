@@ -51,6 +51,14 @@ class Command:
     def answer(self, text):
         self.context.bot.send_message(chat_id=self.update.effective_chat.id, text=text)
 
+    def replied_to_whom(self):
+        if hasattr(self.update.message, 'reply_to_message') and \
+                hasattr(self.update.message.reply_to_message, 'from_user'):
+            uid = self.update.message.reply_to_message.from_user.id
+            return self.get_user_by_id(uid)
+        else:
+            return None
+
     def get_user(self, user_name):
         '''find the user of the given name in the users list and return it,
         if it does not exist: return None'''

@@ -101,6 +101,7 @@ dispatcher = updater.dispatcher
 dispatcher.add_handler(MessageHandler(Filters.text, handle_text))
 for key, function in commands.items():
     dispatcher.add_handler(CommandHandler(key, function))
+dispatcher.add_handler(MessageHandler(Filters.command, print_help))
 
 print('starting event loop')
 sys.stdout.flush()
