@@ -49,7 +49,8 @@ class Command:
                 return user, args[2:]
 
     def answer(self, text):
-        self.context.bot.send_message(chat_id=self.update.effective_chat.id, text=text)
+        self.context.bot.send_message(chat_id=self.update.effective_chat.id, text=text,
+                                      reply_to_message_id=self.update.message.message_id)
 
     def replied_to_whom(self):
         if hasattr(self.update.message, 'reply_to_message') and \
