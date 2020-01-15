@@ -59,7 +59,10 @@ class BotUser:
         else:
             self.allotment -= amount_from_allotment
             self.score -= amount_from_score
-            sign = int(desired_amount / abs(desired_amount))
+            if desired_amount >= 0:
+                sign = +1
+            else:
+                sign = -1
             return (amount_from_allotment + amount_from_score) * sign
 
 
