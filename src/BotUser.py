@@ -23,6 +23,7 @@ class BotUser:
             '+4': '🦍',
             '+5': '🔥',
         }
+        self.score_given = 0
 
     def print_user(self):  # TODO: implement __repr__
         print(self.name)
@@ -63,7 +64,9 @@ class BotUser:
                 sign = +1
             else:
                 sign = -1
-            return (amount_from_allotment + amount_from_score) * sign
+            actual_score = (amount_from_allotment + amount_from_score) * sign
+            self.score_given += actual_score
+            return actual_score
 
 
     def add_report(self, report, update, context):

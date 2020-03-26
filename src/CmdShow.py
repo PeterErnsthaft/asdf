@@ -17,6 +17,8 @@ class CmdShow(Command):
                             f'usage: /show <attribute>   - where <attribute> is one of the following {vars(user).keys()}')
             else:
                 attribute = args[1].lower()
+                if len(args) > 2:
+                    user = self.get_user(args[2].lower())
                 if hasattr(user, attribute):
                     self.answer(f'{user.name}\'s {attribute}: {getattr(user, attribute)}')
                 else:
